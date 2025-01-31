@@ -23,8 +23,8 @@ def delete_data():
 
 @homepage.route('/createData', strict_slashes=False, methods=['GET', 'POST'])
 def create_data():
-    name = request.args.get('name')
-    response = Homepage.create_data(name)
+    # name = request.args.get('name')
+    response = Homepage.create_data()
     return response
 
 # 重命名

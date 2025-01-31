@@ -14,17 +14,17 @@ def delete_data(id):
     response = DB.delete(sql)
     return jsonify(response)    # 必须要json一下
 
-def create_data(name):
+def create_data():  # 只生成id，不设置名称
     # 获取当前时间
     current_time = datetime.now()
     # 格式化时间
     formatted_time = current_time.strftime('%Y-%m-%d %H:%M:%S')
     id = current_time.strftime('%Y%m%d%H%M%S')  # 为避免重复，id为创建数据时的时间
     print(id)
-    data = 'this is '+ name
-    sql = f"INSERT INTO `eeeic`.`home` (`name`, `id`, `data`, `create_time`) VALUES ('{name}', '{id}', '{data}', '{formatted_time}')"
-    response = DB.create(sql)
-    return jsonify(response)
+    data = 'this is ' + str(id)
+    sql = f"INSERT INTO `eeeic`.`home` (`id`, `data`, `create_time`) VALUES ('{id}', '{data}', '{formatted_time}')"
+    DB.create(sql)
+    return jsonify({"id": id})
 
 def rename_data(id,newname):
     sql = f"UPDATE eeeic.home SET name = '{newname}' WHERE id = '{id}'"
@@ -34,4 +34,5 @@ def rename_data(id,newname):
 def get_data_list():
     sql = "SELECT id, name FROM eeeic.home;"
     response = DB.query(sql)
-    return jsonify(response)
+    formatted_response = [{'id': row[0], 'name': row[1]} for row in response] 
+    return jsonify(formatted_response)
