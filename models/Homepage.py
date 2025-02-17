@@ -1,9 +1,7 @@
-from models.utils import DB,BatteryStorage
+from models.utils import DB
 from flask import jsonify
 from datetime import datetime
 import os,json
-
-
 
 
 def get_file(id):
@@ -49,18 +47,26 @@ def get_file_list():
     formatted_response = [{'id': row[0], 'name': row[1]} for row in response] 
     return jsonify(formatted_response)
 
-def add_component(f_id,c_id,c_name,c_type):
-    # print(f_id,c_id,c_name,c_type)
+def get_device_list(f_id):
+    sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
+    f_data = DB.query(sql)
+    f_data = json.loads(f_data[0][0])
+    print(f_data["devices"])
+    return jsonify(f_data["devices"])
+
+
+def add_device(f_id,d_id,d_name,d_type,x,y):
+    # print(f_id,d_id,d_name,d_type)
     sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
     f_data = DB.query(sql)
     f_data = json.loads(f_data[0][0])
 
     new_data = ""
-    if (c_type == 'BatteryStorage'):
-        c_data = {
-            "c_id": f"{c_id}",
-            "c_type": f"{c_type}",
-            "c_name": f"{c_name}",
+    if (d_type == 'Battery'):
+        d_data = {
+            "d_id": f"{d_id}",
+            "d_type": f"{d_type}",
+            "d_name": f"{d_name}",
             "parameters": {
                 "capacity": 1000,
                 "rated_voltage": 500,
@@ -69,13 +75,17 @@ def add_component(f_id,c_id,c_name,c_type):
             "connection": {
                 "type": "AC",
                 "interface": "grid"
+            },
+            "location": {
+                "x": x,
+                "y": y
             }
         }
-    elif (c_type == 'Wind'):
-        c_data = {
-            "c_id": f"{c_id}",
-            "c_type": f"{c_type}",
-            "c_name": f"{c_name}",
+    elif (d_type == 'Wind'):
+        d_data = {
+            "d_id": f"{d_id}",
+            "d_type": f"{d_type}",
+            "d_name": f"{d_name}",
             "parameters": {
                 "rated_power": 1000,
                 "cutin_speed": 3,
@@ -84,13 +94,17 @@ def add_component(f_id,c_id,c_name,c_type):
             "connection": {
                 "type": "AC",
                 "interface": "grid"
+            },
+            "location": {
+                "x": x,
+                "y": y
             }
         }
-    elif (c_type == 'Solar'):
-        c_data = {
-            "c_id": f"{c_id}",
-            "c_type": f"{c_type}",
-            "c_name": f"{c_name}",
+    elif (d_type == 'Solar'):
+        d_data = {
+            "d_id": f"{d_id}",
+            "d_type": f"{d_type}",
+            "d_name": f"{d_name}",
             "parameters": {
                 "rated_power": 1000,
                 "efficiency": 0.2,
@@ -99,9 +113,13 @@ def add_component(f_id,c_id,c_name,c_type):
             "connection": {
                 "type": "AC",
                 "interface": "grid"
+            },
+            "location": {
+                "x": x,
+                "y": y
             }
         }
-    f_data["devices"].append(c_data)
+    f_data["devices"].append(d_data)
     new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
     # print(new_data)
     sql = f"UPDATE eeeic.home SET data = '{new_data}' WHERE id = '{f_id}';"
@@ -109,12 +127,12 @@ def add_component(f_id,c_id,c_name,c_type):
     # print(response)
     return jsonify(response)
 
-def change_battery_storage_param(f_id,c_id,rated_voltage,capacity,resistance):
+def change_battery_param(f_id,d_id,rated_voltage,capacity,resistance):
     sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
     f_data = DB.query(sql)
     f_data = json.loads(f_data[0][0])
     for device in f_data["devices"]:
-        if device["c_id"] == c_id:
+        if device["d_id"] == d_id:
             device["parameters"]["capacity"] = capacity
             device["parameters"]["rated_voltage"] = rated_voltage
             device["parameters"]["resistance"] = resistance
@@ -124,12 +142,12 @@ def change_battery_storage_param(f_id,c_id,rated_voltage,capacity,resistance):
     response = DB.update(sql)
     return jsonify(response)
 
-def change_wind_param(f_id,c_id,rated_power,cutin_speed,cutout_speed):
+def change_wind_param(f_id,d_id,rated_power,cutin_speed,cutout_speed):
     sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
     f_data = DB.query(sql)
     f_data = json.loads(f_data[0][0])
     for device in f_data["devices"]:
-        if device["c_id"] == c_id:
+        if device["d_id"] == d_id:
             device["parameters"]["rated_power"] = rated_power
             device["parameters"]["cutin_speed"] = cutin_speed
             device["parameters"]["cutout_speed"] = cutout_speed
@@ -139,12 +157,12 @@ def change_wind_param(f_id,c_id,rated_power,cutin_speed,cutout_speed):
     response = DB.update(sql)
     return jsonify(response)
 
-def change_solar_param(f_id,c_id,rated_power,efficiency,open_voltage):
+def change_solar_param(f_id,d_id,rated_power,efficiency,open_voltage):
     sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
     f_data = DB.query(sql)
     f_data = json.loads(f_data[0][0])
     for device in f_data["devices"]:
-        if device["c_id"] == c_id:
+        if device["d_id"] == d_id:
             device["parameters"]["rated_power"] = rated_power
             device["parameters"]["efficiency"] = efficiency
             device["parameters"]["open_voltage"] = open_voltage
@@ -154,12 +172,12 @@ def change_solar_param(f_id,c_id,rated_power,efficiency,open_voltage):
     response = DB.update(sql)
     return jsonify(response)
 
-def delete_component(f_id,c_id):
+def delete_device(f_id,d_id):
     sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
     f_data = DB.query(sql)
     f_data = json.loads(f_data[0][0])
     for device in f_data["devices"]:
-        if device["c_id"] == c_id:
+        if device["d_id"] == d_id:
             f_data["devices"].remove(device)
             break
     new_data = json.dumps(f_data, indent=4, ensure_ascii=False)

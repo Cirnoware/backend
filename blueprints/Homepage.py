@@ -41,48 +41,56 @@ def get_file_list():
     response = Homepage.get_file_list()
     return response
 
-@homepage.route('/addComponent', strict_slashes=False, methods=['GET', 'POST'])
-def add_component():
-    f_id = request.args.get('f_id')  # f即为file
-    c_id = request.args.get('c_id')  # c即为component
-    c_name = request.args.get('c_name')
-    c_type = request.args.get('c_type')
-    response = Homepage.add_component(f_id,c_id,c_name,c_type)
+@homepage.route('/getDeviceList', strict_slashes=False, methods=['GET', 'POST'])
+def get_device_list():
+    f_id = request.args.get('f_id')
+    response = Homepage.get_device_list(f_id)
     return response
 
-@homepage.route('/changeBatteryStorageParam', strict_slashes=False, methods=['GET', 'POST'])
-def change_battery_storage_param():
+@homepage.route('/addDevice', strict_slashes=False, methods=['GET', 'POST'])
+def add_device():
+    f_id = request.args.get('f_id')  # f即为file
+    d_id = request.args.get('d_id')  # c即为device
+    d_name = request.args.get('d_name')
+    d_type = request.args.get('d_type')
+    x = request.args.get('x')
+    y = request.args.get('y')
+    response = Homepage.add_device(f_id,d_id,d_name,d_type,x,y)
+    return response
+
+@homepage.route('/changeBatteryParam', strict_slashes=False, methods=['GET', 'POST'])
+def change_battery_param():
     f_id = request.args.get('f_id')
-    c_id = request.args.get('c_id')
+    d_id = request.args.get('d_id')
     rated_voltage = request.args.get('rated_voltage')
     capacity = request.args.get('capacity')
     resistance = request.args.get('resistance')
-    response = Homepage.change_battery_storage_param(f_id,c_id,rated_voltage,capacity,resistance)
+    response = Homepage.change_battery_param(f_id,d_id,rated_voltage,capacity,resistance)
     return response
 
 @homepage.route('/changeWindParam', strict_slashes=False, methods=['GET', 'POST'])
 def change_wind_param():
     f_id = request.args.get('f_id')
-    c_id = request.args.get('c_id')
+    d_id = request.args.get('d_id')
     rated_power = request.args.get('rated_power')
     cutin_speed = request.args.get('cutin_speed')
     cutout_speed = request.args.get('cutout_speed')
-    response = Homepage.change_wind_param(f_id, c_id, rated_power, cutin_speed, cutout_speed)
+    response = Homepage.change_wind_param(f_id, d_id, rated_power, cutin_speed, cutout_speed)
     return response
 
 @homepage.route('/changeSolarParam', strict_slashes=False, methods=['GET', 'POST'])
 def change_solar_param():
     f_id = request.args.get('f_id')
-    c_id = request.args.get('c_id')
+    d_id = request.args.get('d_id')
     peak_power = request.args.get('peak_power')
     efficiency = request.args.get('efficiency')
     open_voltage = request.args.get('open_voltage')
-    response = Homepage.change_solar_param(f_id, c_id, peak_power, efficiency, open_voltage)
+    response = Homepage.change_solar_param(f_id, d_id, peak_power, efficiency, open_voltage)
     return response
 
-@homepage.route('/deleteComponent', strict_slashes=False, methods=['GET', 'POST'])
-def delete_component():
+@homepage.route('/deleteDevice', strict_slashes=False, methods=['GET', 'POST'])
+def delete_device():
     f_id = request.args.get('f_id')
-    c_id = request.args.get('c_id')
-    response = Homepage.delete_component(f_id, c_id)
+    d_id = request.args.get('d_id')
+    response = Homepage.delete_device(f_id, d_id)
     return response
