@@ -1,0 +1,9 @@
+{
+    "system_info": {
+      "system_name": "AC-DC Interconnection",
+      "version": "1.0",
+      "description": "A system for analyzing AC-DC interconnection stability"
+    },
+    "devices": []
+}
+  
