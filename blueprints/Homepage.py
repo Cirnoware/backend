@@ -4,14 +4,6 @@ from models import Homepage
 homepage = Blueprint('homepage', __name__, url_prefix="/Homepage")
 
 # 格式如下: 127.0.0.1/Homepage/getFile?name=xxx
-@homepage.route('/getFile', strict_slashes=False, methods=['GET', 'POST'])
-def get_file():
-    id = request.args.get('id')
-    name = request.args.get('name')
-    # print(f"trying to get File of '{name}'")  # 这个print是用来调试的,会在运行app.py的终端中显示
-    response = Homepage.get_file(id)
-    # print("response is:",response)
-    return response
 
 # 谨慎使用，这个真的能删除数据
 @homepage.route('/deleteFile', strict_slashes=False, methods=['GET', 'POST'])
@@ -41,6 +33,12 @@ def get_file_list():
     response = Homepage.get_file_list()
     return response
 
+@homepage.route('/getFile', strict_slashes=False, methods=['GET', 'POST'])
+def get_file():
+    f_id = request.args.get('f_id')
+    response = Homepage.get_file(f_id)
+    return response
+
 @homepage.route('/getDeviceList', strict_slashes=False, methods=['GET', 'POST'])
 def get_device_list():
     f_id = request.args.get('f_id')
@@ -52,10 +50,11 @@ def add_device():
     f_id = request.args.get('f_id')  # f即为file
     d_id = request.args.get('d_id')  # c即为device
     d_name = request.args.get('d_name')
+    d_dispname = request.args.get('d_dispname')
     d_type = request.args.get('d_type')
     x = request.args.get('x')
     y = request.args.get('y')
-    response = Homepage.add_device(f_id,d_id,d_name,d_type,x,y)
+    response = Homepage.add_device(f_id,d_id,d_name,d_dispname,d_type,x,y)
     return response
 
 @homepage.route('/changeBatteryParam', strict_slashes=False, methods=['GET', 'POST'])
@@ -93,4 +92,15 @@ def delete_device():
     f_id = request.args.get('f_id')
     d_id = request.args.get('d_id')
     response = Homepage.delete_device(f_id, d_id)
+    return response
+
+@homepage.route('/addWire', strict_slashes=False, methods=['GET', 'POST'])
+def add_wire():
+    f_id = request.args.get('f_id')
+    w_id = request.args.get('w_id')
+    start_x = request.args.get('start_x')
+    start_y = request.args.get('start_y')
+    end_x = request.args.get('end_x')
+    end_y = request.args.get('end_y')
+    response = Homepage.add_wire(f_id, w_id,start_x, start_y, end_x, end_y)
     return response

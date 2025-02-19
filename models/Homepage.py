@@ -4,12 +4,6 @@ from datetime import datetime
 import os,json
 
 
-def get_file(id):
-    # 这部分的代码参考服务器端的代码，在EEEIC/Meter/backend/中
-    # 这个代码可能会有SQL注入的问题，请不要尝试攻击
-    sql = f"SELECT data FROM home WHERE id = '{id}';"    # 使用f-string格式化字符串
-    response = DB.query(sql)
-    return jsonify(response)    # 必须要json一下
 
 def delete_file(id):
     sql = f"DELETE FROM home WHERE id = '{id}';"
@@ -47,15 +41,21 @@ def get_file_list():
     formatted_response = [{'id': row[0], 'name': row[1]} for row in response] 
     return jsonify(formatted_response)
 
+def get_file(f_id):
+    sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
+    f_data = DB.query(sql)
+    f_data = json.loads(f_data[0][0])
+    return jsonify(f_data)
+
 def get_device_list(f_id):
     sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
     f_data = DB.query(sql)
     f_data = json.loads(f_data[0][0])
-    print(f_data["devices"])
+    # print(f_data["devices"])
     return jsonify(f_data["devices"])
 
 
-def add_device(f_id,d_id,d_name,d_type,x,y):
+def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
     # print(f_id,d_id,d_name,d_type)
     sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
     f_data = DB.query(sql)
@@ -67,6 +67,9 @@ def add_device(f_id,d_id,d_name,d_type,x,y):
             "d_id": f"{d_id}",
             "d_type": f"{d_type}",
             "d_name": f"{d_name}",
+            "d_dispname": f"{d_dispname}",
+            "x": x,
+            "y": y,
             "parameters": {
                 "capacity": 1000,
                 "rated_voltage": 500,
@@ -86,6 +89,9 @@ def add_device(f_id,d_id,d_name,d_type,x,y):
             "d_id": f"{d_id}",
             "d_type": f"{d_type}",
             "d_name": f"{d_name}",
+            "d_dispname": f"{d_dispname}",
+            "x": x,
+            "y": y,
             "parameters": {
                 "rated_power": 1000,
                 "cutin_speed": 3,
@@ -105,6 +111,9 @@ def add_device(f_id,d_id,d_name,d_type,x,y):
             "d_id": f"{d_id}",
             "d_type": f"{d_type}",
             "d_name": f"{d_name}",
+            "d_dispname": f"{d_dispname}",
+            "x": x,
+            "y": y,
             "parameters": {
                 "rated_power": 1000,
                 "efficiency": 0.2,
@@ -114,10 +123,34 @@ def add_device(f_id,d_id,d_name,d_type,x,y):
                 "type": "AC",
                 "interface": "grid"
             },
-            "location": {
-                "x": x,
-                "y": y
-            }
+
+        }
+    elif (d_type == 'Grid'):
+        d_data = {
+            "d_id": f"{d_id}",
+            "d_type": f"{d_type}",
+            "d_name": f"{d_name}",
+            "d_dispname": f"{d_dispname}",
+            "x": x,
+            "y": y
+        }
+    elif (d_type == 'VSC'):
+        d_data = {
+            "d_id": f"{d_id}",
+            "d_type": f"{d_type}",
+            "d_name": f"{d_name}",
+            "d_dispname": f"{d_dispname}",
+            "x": x,
+            "y": y
+        }
+    elif (d_type == 'Bus'):
+        d_data = {
+            "d_id": f"{d_id}",
+            "d_type": f"{d_type}",
+            "d_name": f"{d_name}",
+            "d_dispname": f"{d_dispname}",        
+            "x": x,
+            "y": y
         }
     f_data["devices"].append(d_data)
     new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
@@ -180,6 +213,24 @@ def delete_device(f_id,d_id):
         if device["d_id"] == d_id:
             f_data["devices"].remove(device)
             break
+    new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
+    sql = f"UPDATE eeeic.home SET data = '{new_data}' WHERE id = '{f_id}';"
+    response = DB.update(sql)
+    return jsonify(response)
+
+def add_wire(f_id, w_id,start_x, start_y, end_x, end_y):
+    sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
+    f_data = DB.query(sql)
+    f_data = json.loads(f_data[0][0])
+    f_data["system_info"]["wire_count"] += 1
+    wire_data = {
+        "w_id": f"{w_id}",
+        "start": {"x": start_x, "y": start_y},
+        "end": {"x": end_x, "y": end_y}
+    }
+    if "wires" not in f_data:
+        f_data["wires"] = []
+    f_data["wires"].append(wire_data)
     new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
     sql = f"UPDATE eeeic.home SET data = '{new_data}' WHERE id = '{f_id}';"
     response = DB.update(sql)
