@@ -3,6 +3,13 @@
       "system_name": "AC-DC Interconnection",
       "version": "1.0",
       "description": "A system for analyzing AC-DC interconnection stability",
+      "device_count_total": 0,
+      "battery_count": 0,
+      "wind_count": 0,
+      "solar_count": 0,
+      "grid_count": 0,
+      "vsc_count": 0,
+      "bus_count": 0,
       "wire_count": 0,
       "x": 0,
       "y": 0

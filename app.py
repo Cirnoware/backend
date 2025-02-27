@@ -9,4 +9,4 @@ CORS(app)  # 允许所有来源进行跨域请求,否则浏览器会阻止后端
 app.register_blueprint(homepage)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

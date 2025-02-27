@@ -60,14 +60,15 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
     sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
     f_data = DB.query(sql)
     f_data = json.loads(f_data[0][0])
-
+    f_data["system_info"]["device_count_total"] += 1
     new_data = ""
     if (d_type == 'Battery'):
+        f_data["system_info"]["battery_count"] += 1
         d_data = {
             "d_id": f"{d_id}",
             "d_type": f"{d_type}",
             "d_name": f"{d_name}",
-            "d_dispname": f"{d_dispname}",
+            "d_dispname": f"{d_dispname}{f_data["system_info"]["battery_count"]}",
             "x": x,
             "y": y,
             "parameters": {
@@ -83,13 +84,14 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
                 "x": x,
                 "y": y
             }
-        }
+        }  
     elif (d_type == 'Wind'):
+        f_data["system_info"]["wind_count"] += 1
         d_data = {
             "d_id": f"{d_id}",
             "d_type": f"{d_type}",
             "d_name": f"{d_name}",
-            "d_dispname": f"{d_dispname}",
+            "d_dispname": f"{d_dispname}{f_data["system_info"]["wind_count"]}",
             "x": x,
             "y": y,
             "parameters": {
@@ -106,12 +108,14 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
                 "y": y
             }
         }
+        
     elif (d_type == 'Solar'):
+        f_data["system_info"]["solar_count"] += 1
         d_data = {
             "d_id": f"{d_id}",
             "d_type": f"{d_type}",
             "d_name": f"{d_name}",
-            "d_dispname": f"{d_dispname}",
+            "d_dispname": f"{d_dispname}{f_data["system_info"]["solar_count"]}",
             "x": x,
             "y": y,
             "parameters": {
@@ -126,29 +130,32 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
 
         }
     elif (d_type == 'Grid'):
+        f_data["system_info"]["grid_count"] += 1
         d_data = {
             "d_id": f"{d_id}",
             "d_type": f"{d_type}",
             "d_name": f"{d_name}",
-            "d_dispname": f"{d_dispname}",
+            "d_dispname": f"{d_dispname}{f_data["system_info"]["grid_count"]}",
             "x": x,
             "y": y
         }
     elif (d_type == 'VSC'):
+        f_data["system_info"]["vsc_count"] += 1
         d_data = {
             "d_id": f"{d_id}",
             "d_type": f"{d_type}",
             "d_name": f"{d_name}",
-            "d_dispname": f"{d_dispname}",
+            "d_dispname": f"{d_dispname}{f_data["system_info"]["vsc_count"]}",
             "x": x,
             "y": y
         }
     elif (d_type == 'Bus'):
+        f_data["system_info"]["bus_count"] += 1
         d_data = {
             "d_id": f"{d_id}",
             "d_type": f"{d_type}",
             "d_name": f"{d_name}",
-            "d_dispname": f"{d_dispname}",        
+            "d_dispname": f"{d_dispname}{f_data["system_info"]["bus_count"]}",        
             "x": x,
             "y": y
         }
@@ -218,19 +225,42 @@ def delete_device(f_id,d_id):
     response = DB.update(sql)
     return jsonify(response)
 
-def add_wire(f_id, w_id,start_x, start_y, end_x, end_y):
+def add_wire(f_id, w_id,start_d,end_d):
     sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
     f_data = DB.query(sql)
     f_data = json.loads(f_data[0][0])
     f_data["system_info"]["wire_count"] += 1
+    # wire_data = {
+    #     "w_id": f"{w_id}",
+    #     "start": {"x": start_x, "y": start_y},
+    #     "end": {"x": end_x, "y": end_y}
+    # }
     wire_data = {
         "w_id": f"{w_id}",
-        "start": {"x": start_x, "y": start_y},
-        "end": {"x": end_x, "y": end_y}
+        "start_d": f"{start_d}",
+        "end_d": f"{end_d}",
+        "parameters": {
+            "resistance": 0.3,
+            "inductance": 0.001
+        }
     }
     if "wires" not in f_data:
         f_data["wires"] = []
     f_data["wires"].append(wire_data)
+    new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
+    sql = f"UPDATE eeeic.home SET data = '{new_data}' WHERE id = '{f_id}';"
+    response = DB.update(sql)
+    return jsonify(response)
+
+def change_wire_param(f_id,w_id,resistance,inductance):
+    sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
+    f_data = DB.query(sql)
+    f_data = json.loads(f_data[0][0])
+    for wire in f_data["wires"]:
+        if wire["w_id"] == w_id:
+            wire["parameters"]["resistance"] = resistance
+            wire["parameters"]["inductance"] = inductance
+            break
     new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
     sql = f"UPDATE eeeic.home SET data = '{new_data}' WHERE id = '{f_id}';"
     response = DB.update(sql)

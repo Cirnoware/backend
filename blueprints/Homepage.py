@@ -98,9 +98,16 @@ def delete_device():
 def add_wire():
     f_id = request.args.get('f_id')
     w_id = request.args.get('w_id')
-    start_x = request.args.get('start_x')
-    start_y = request.args.get('start_y')
-    end_x = request.args.get('end_x')
-    end_y = request.args.get('end_y')
-    response = Homepage.add_wire(f_id, w_id,start_x, start_y, end_x, end_y)
+    start_d = request.args.get('start_d')
+    end_d = request.args.get('end_d')
+    response = Homepage.add_wire(f_id, w_id,start_d, end_d)
+    return response
+
+@homepage.route('/changeWireParam', strict_slashes=False, methods=['GET', 'POST'])
+def change_wire_param():
+    f_id = request.args.get('f_id')
+    w_id = request.args.get('w_id')
+    resistance = request.args.get('resistance')
+    inductance = request.args.get('inductance')
+    response = Homepage.change_wire_param(f_id, w_id, resistance, inductance)
     return response
