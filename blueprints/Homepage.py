@@ -100,7 +100,9 @@ def add_wire():
     w_id = request.args.get('w_id')
     start_d = request.args.get('start_d')
     end_d = request.args.get('end_d')
-    response = Homepage.add_wire(f_id, w_id,start_d, end_d)
+    start_side = request.args.get('start_side')
+    end_side = request.args.get('end_side')
+    response = Homepage.add_wire(f_id, w_id,start_d, end_d,start_side,end_side)
     return response
 
 @homepage.route('/changeWireParam', strict_slashes=False, methods=['GET', 'POST'])
@@ -110,4 +112,13 @@ def change_wire_param():
     resistance = request.args.get('resistance')
     inductance = request.args.get('inductance')
     response = Homepage.change_wire_param(f_id, w_id, resistance, inductance)
+    return response
+
+@homepage.route('/changeDevicePos', strict_slashes=False, methods=['GET', 'POST'])
+def change_device_pos():
+    f_id = request.args.get('f_id')
+    d_id = request.args.get('d_id')
+    x = request.args.get('x')
+    y = request.args.get('y')
+    response = Homepage.change_device_pos(f_id, d_id, x, y)
     return response

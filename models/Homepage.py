@@ -79,10 +79,6 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
             "connection": {
                 "type": "AC",
                 "interface": "grid"
-            },
-            "location": {
-                "x": x,
-                "y": y
             }
         }  
     elif (d_type == 'Wind'):
@@ -102,10 +98,6 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
             "connection": {
                 "type": "AC",
                 "interface": "grid"
-            },
-            "location": {
-                "x": x,
-                "y": y
             }
         }
         
@@ -225,7 +217,7 @@ def delete_device(f_id,d_id):
     response = DB.update(sql)
     return jsonify(response)
 
-def add_wire(f_id, w_id,start_d,end_d):
+def add_wire(f_id, w_id,start_d,end_d,start_side,end_side):
     sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
     f_data = DB.query(sql)
     f_data = json.loads(f_data[0][0])
@@ -238,7 +230,9 @@ def add_wire(f_id, w_id,start_d,end_d):
     wire_data = {
         "w_id": f"{w_id}",
         "start_d": f"{start_d}",
+        "start_side": f"{start_side}",
         "end_d": f"{end_d}",
+        "end_side": f"{end_side}",
         "parameters": {
             "resistance": 0.3,
             "inductance": 0.001
@@ -260,6 +254,20 @@ def change_wire_param(f_id,w_id,resistance,inductance):
         if wire["w_id"] == w_id:
             wire["parameters"]["resistance"] = resistance
             wire["parameters"]["inductance"] = inductance
+            break
+    new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
+    sql = f"UPDATE eeeic.home SET data = '{new_data}' WHERE id = '{f_id}';"
+    response = DB.update(sql)
+    return jsonify(response)
+
+def change_device_pos(f_id, d_id, x, y):
+    sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
+    f_data = DB.query(sql)
+    f_data = json.loads(f_data[0][0])
+    for device in f_data["devices"]:
+        if device["d_id"] == d_id:
+            device["x"] = x
+            device["y"] = y
             break
     new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
     sql = f"UPDATE eeeic.home SET data = '{new_data}' WHERE id = '{f_id}';"
