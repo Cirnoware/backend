@@ -54,7 +54,6 @@ def get_device_list(f_id):
     # print(f_data["devices"])
     return jsonify(f_data["devices"])
 
-
 def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
     # print(f_id,d_id,d_name,d_type)
     sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
@@ -212,6 +211,11 @@ def delete_device(f_id,d_id):
         if device["d_id"] == d_id:
             f_data["devices"].remove(device)
             break
+    # 删除相连的导线
+    for wire in f_data["wires"]:
+        if wire["start_d"] == d_id or wire["end_d"] == d_id:
+            f_data["wires"].remove(wire)
+            f_data["system_info"]["wire_count"] -= 1
     new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
     sql = f"UPDATE eeeic.home SET data = '{new_data}' WHERE id = '{f_id}';"
     response = DB.update(sql)
