@@ -87,6 +87,54 @@ def change_solar_param():
     response = Homepage.change_solar_param(f_id, d_id, peak_power, efficiency, open_voltage)
     return response
 
+@homepage.route('/changeGridParam', strict_slashes=False, methods=['GET', 'POST'])
+def change_grid_param():
+    f_id = request.args.get('f_id')
+    d_id = request.args.get('d_id')
+    fo = request.args.get('fo')
+    Vgabc0 = request.args.get('Vgabc0')
+    Lf = request.args.get('Lf')
+    Rf = request.args.get('Rf')
+    Lg = request.args.get('Lg')
+    Rg = request.args.get('Rg')
+    response = Homepage.change_grid_param(f_id, d_id, fo, Vgabc0, Lf, Rf, Lg, Rg)
+    return response
+
+@homepage.route('/changeVSCParam', strict_slashes=False, methods=['GET', 'POST'])
+def change_vsc_param():
+    f_id = request.args.get('f_id')
+    d_id = request.args.get('d_id')
+    fs = request.args.get('fs')
+    Kip = request.args.get('Kip')
+    Kii = request.args.get('Kii')
+    Kvp = request.args.get('Kvp')
+    Kvi = request.args.get('Kvi')
+    Kpllp = request.args.get('Kpllp')
+    Kplli = request.args.get('Kplli')
+    Td = request.args.get('Td')
+    Ktp = request.args.get('Ktp')
+    Kti = request.args.get('Kti')
+    response = Homepage.change_vsc_param(f_id, d_id, fs, Kip, Kii, Kvp, Kvi, Kpllp, Kplli, Td, Ktp, Kti)
+    return response
+
+@homepage.route('/changeBusParam', strict_slashes=False, methods=['GET', 'POST'])
+def change_bus_param():
+    f_id = request.args.get('f_id')
+    d_id = request.args.get('d_id')
+    Vdc0 = request.args.get('Vdc0')
+    Cdc = request.args.get('Cdc')
+    response = Homepage.change_bus_param(f_id, d_id, Vdc0, Cdc)
+    return response
+
+@homepage.route('/changeLoadParam', strict_slashes=False, methods=['GET', 'POST'])
+def change_load_param():
+    f_id = request.args.get('f_id')
+    d_id = request.args.get('d_id')
+    Pload1 = request.args.get('Pload1')
+    Cload1 = request.args.get('Cload1')
+    response = Homepage.change_load_param(f_id, d_id, Pload1, Cload1)
+    return response
+
 @homepage.route('/deleteDevice', strict_slashes=False, methods=['GET', 'POST'])
 def delete_device():
     f_id = request.args.get('f_id')

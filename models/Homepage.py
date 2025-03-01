@@ -74,10 +74,6 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
                 "capacity": 1000,
                 "rated_voltage": 500,
                 "resistance": 0.95
-            },
-            "connection": {
-                "type": "AC",
-                "interface": "grid"
             }
         }  
     elif (d_type == 'Wind'):
@@ -94,10 +90,6 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
                 "cutin_speed": 3,
                 "cutout_speed": 25
             },
-            "connection": {
-                "type": "AC",
-                "interface": "grid"
-            }
         }
         
     elif (d_type == 'Solar'):
@@ -113,12 +105,7 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
                 "rated_power": 1000,
                 "efficiency": 0.2,
                 "open_voltage": 500
-            },
-            "connection": {
-                "type": "AC",
-                "interface": "grid"
-            },
-
+            }
         }
     elif (d_type == 'Grid'):
         f_data["system_info"]["grid_count"] += 1
@@ -128,7 +115,15 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
             "d_name": f"{d_name}",
             "d_dispname": f"{d_dispname}{f_data["system_info"]["grid_count"]}",
             "x": x,
-            "y": y
+            "y": y,
+            "parameters": {
+                "f0": 50,
+                "Vgabc0": 380,
+                "Lf": 3.65e-3,
+                "Rf": 0.01,
+                "Lg": 2.5e-3,
+                "Rg": 0.15
+            }
         }
     elif (d_type == 'VSC'):
         f_data["system_info"]["vsc_count"] += 1
@@ -138,7 +133,19 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
             "d_name": f"{d_name}",
             "d_dispname": f"{d_dispname}{f_data["system_info"]["vsc_count"]}",
             "x": x,
-            "y": y
+            "y": y,
+            "parameters": {
+                "fs": 5e3,
+                "Kip": 5,
+                "Kii": 500,
+                "Kvp": 0.35,
+                "Kvi": 20,
+                "Kpllp": 5,
+                "Kplli": 50,
+                "Td": 200e-6,
+                "Ktp": 0.1,
+                "Kti": 50
+            }
         }
     elif (d_type == 'Bus'):
         f_data["system_info"]["bus_count"] += 1
@@ -146,9 +153,27 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
             "d_id": f"{d_id}",
             "d_type": f"{d_type}",
             "d_name": f"{d_name}",
-            "d_dispname": f"{d_dispname}{f_data["system_info"]["bus_count"]}",        
+            "d_dispname": f"{d_dispname}{f_data["system_info"]["bus_count"]}",
             "x": x,
-            "y": y
+            "y": y,
+            "parameters": {
+                "Vdc0": 700,
+                "Cdc": 1500e-6
+            }
+        }
+    elif (d_type == 'Load'):
+        f_data["system_info"]["load_count"] += 1
+        d_data = {
+            "d_id": f"{d_id}",
+            "d_type": f"{d_type}",
+            "d_name": f"{d_name}",
+            "d_dispname": f"{d_dispname}{f_data["system_info"]["load_count"]}",
+            "x": x,
+            "y": y,
+            "parameters": {
+                "Pload1": 10e3,
+                "Cload1": 200e-6
+            }
         }
     f_data["devices"].append(d_data)
     new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
@@ -197,6 +222,74 @@ def change_solar_param(f_id,d_id,rated_power,efficiency,open_voltage):
             device["parameters"]["rated_power"] = rated_power
             device["parameters"]["efficiency"] = efficiency
             device["parameters"]["open_voltage"] = open_voltage
+            break
+    new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
+    sql = f"UPDATE eeeic.home SET data = '{new_data}' WHERE id = '{f_id}';"
+    response = DB.update(sql)
+    return jsonify(response)
+
+def change_grid_param(f_id, d_id, f0, Vgabc0, Lf, Rf, Lg, Rg):
+    sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
+    f_data = DB.query(sql)
+    f_data = json.loads(f_data[0][0])
+    for device in f_data["devices"]:
+        if device["d_id"] == d_id:
+            device["parameters"]["f0"] = f0
+            device["parameters"]["Vgabc0"] = Vgabc0
+            device["parameters"]["Lf"] = Lf
+            device["parameters"]["Rf"] = Rf
+            device["parameters"]["Lg"] = Lg
+            device["parameters"]["Rg"] = Rg
+            break
+    new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
+    sql = f"UPDATE eeeic.home SET data = '{new_data}' WHERE id = '{f_id}';"
+    response = DB.update(sql)
+    return jsonify(response)
+
+def change_vsc_param(f_id, d_id, fs, Kip, Kii, Kvp, Kvi, Kpllp, Kplli, Td, Ktp, Kti):
+    sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
+    f_data = DB.query(sql)
+    f_data = json.loads(f_data[0][0])
+    for device in f_data["devices"]:
+        if device["d_id"] == d_id:
+            device["parameters"]["fs"] = fs
+            device["parameters"]["Kip"] = Kip
+            device["parameters"]["Kii"] = Kii
+            device["parameters"]["Kvp"] = Kvp
+            device["parameters"]["Kvi"] = Kvi
+            device["parameters"]["Kpllp"] = Kpllp
+            device["parameters"]["Kplli"] = Kplli
+            device["parameters"]["Td"] = Td
+            device["parameters"]["Ktp"] = Ktp
+            device["parameters"]["Kti"] = Kti
+            break
+    new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
+    sql = f"UPDATE eeeic.home SET data = '{new_data}' WHERE id = '{f_id}';"
+    response = DB.update(sql)
+    return jsonify(response)
+
+def change_load_param(f_id, d_id, Pload1, Cload1):
+    sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
+    f_data = DB.query(sql)
+    f_data = json.loads(f_data[0][0])
+    for device in f_data["devices"]:
+        if device["d_id"] == d_id:
+            device["parameters"]["Pload1"] = Pload1
+            device["parameters"]["Cload1"] = Cload1
+            break
+    new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
+    sql = f"UPDATE eeeic.home SET data = '{new_data}' WHERE id = '{f_id}';"
+    response = DB.update(sql)
+    return jsonify(response)
+
+def change_bus_param(f_id, d_id, Vdc0, Cdc):
+    sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
+    f_data = DB.query(sql)
+    f_data = json.loads(f_data[0][0])
+    for device in f_data["devices"]:
+        if device["d_id"] == d_id:
+            device["parameters"]["Vdc0"] = Vdc0
+            device["parameters"]["Cdc"] = Cdc
             break
     new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
     sql = f"UPDATE eeeic.home SET data = '{new_data}' WHERE id = '{f_id}';"
