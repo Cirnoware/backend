@@ -67,13 +67,12 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
             "d_id": f"{d_id}",
             "d_type": f"{d_type}",
             "d_name": f"{d_name}",
-            "d_dispname": f"{d_dispname}{f_data["system_info"]["battery_count"]}",
+            "d_dispname": f"{d_dispname}{f_data['system_info']['battery_count']}",
             "x": x,
             "y": y,
             "parameters": {
-                "capacity": 1000,
-                "rated_voltage": 500,
-                "resistance": 0.95
+                "Pload1": 10e3,
+                "Cload1": 200e-6
             }
         }  
     elif (d_type == 'Wind'):
@@ -82,13 +81,12 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
             "d_id": f"{d_id}",
             "d_type": f"{d_type}",
             "d_name": f"{d_name}",
-            "d_dispname": f"{d_dispname}{f_data["system_info"]["wind_count"]}",
+            "d_dispname": f"{d_dispname}{f_data['system_info']['wind_count']}",
             "x": x,
             "y": y,
             "parameters": {
-                "rated_power": 1000,
-                "cutin_speed": 3,
-                "cutout_speed": 25
+                "Pload1": 10e3,
+                "Cload1": 200e-6
             },
         }
         
@@ -98,13 +96,12 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
             "d_id": f"{d_id}",
             "d_type": f"{d_type}",
             "d_name": f"{d_name}",
-            "d_dispname": f"{d_dispname}{f_data["system_info"]["solar_count"]}",
+            "d_dispname": f"{d_dispname}{f_data['system_info']['solar_count']}",
             "x": x,
             "y": y,
             "parameters": {
-                "rated_power": 1000,
-                "efficiency": 0.2,
-                "open_voltage": 500
+                "Pload1": 10e3,
+                "Cload1": 200e-6
             }
         }
     elif (d_type == 'Grid'):
@@ -113,7 +110,7 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
             "d_id": f"{d_id}",
             "d_type": f"{d_type}",
             "d_name": f"{d_name}",
-            "d_dispname": f"{d_dispname}{f_data["system_info"]["grid_count"]}",
+            "d_dispname": f"{d_dispname}{f_data['system_info']['grid_count']}",
             "x": x,
             "y": y,
             "parameters": {
@@ -131,7 +128,7 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
             "d_id": f"{d_id}",
             "d_type": f"{d_type}",
             "d_name": f"{d_name}",
-            "d_dispname": f"{d_dispname}{f_data["system_info"]["vsc_count"]}",
+            "d_dispname": f"{d_dispname}{f_data['system_info']['vsc_count']}",
             "x": x,
             "y": y,
             "parameters": {
@@ -153,7 +150,7 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
             "d_id": f"{d_id}",
             "d_type": f"{d_type}",
             "d_name": f"{d_name}",
-            "d_dispname": f"{d_dispname}{f_data["system_info"]["bus_count"]}",
+            "d_dispname": f"{d_dispname}{f_data['system_info']['bus_count']}",
             "x": x,
             "y": y,
             "parameters": {
@@ -167,7 +164,7 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
             "d_id": f"{d_id}",
             "d_type": f"{d_type}",
             "d_name": f"{d_name}",
-            "d_dispname": f"{d_dispname}{f_data["system_info"]["load_count"]}",
+            "d_dispname": f"{d_dispname}{f_data['system_info']['load_count']}",
             "x": x,
             "y": y,
             "parameters": {
@@ -183,45 +180,42 @@ def add_device(f_id,d_id,d_name,d_dispname,d_type,x,y):
     # print(response)
     return jsonify(response)
 
-def change_battery_param(f_id,d_id,rated_voltage,capacity,resistance):
+def change_battery_param(f_id,d_id,Pload1,Cload1):
     sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
     f_data = DB.query(sql)
     f_data = json.loads(f_data[0][0])
     for device in f_data["devices"]:
         if device["d_id"] == d_id:
-            device["parameters"]["capacity"] = capacity
-            device["parameters"]["rated_voltage"] = rated_voltage
-            device["parameters"]["resistance"] = resistance
+            device["parameters"]["Pload1"] = Pload1
+            device["parameters"]["Cload1"] = Cload1
             break
     new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
     sql = f"UPDATE eeeic.home SET data = '{new_data}' WHERE id = '{f_id}';"
     response = DB.update(sql)
     return jsonify(response)
 
-def change_wind_param(f_id,d_id,rated_power,cutin_speed,cutout_speed):
+def change_wind_param(f_id,d_id,Pload1,Cload1):
     sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
     f_data = DB.query(sql)
     f_data = json.loads(f_data[0][0])
     for device in f_data["devices"]:
         if device["d_id"] == d_id:
-            device["parameters"]["rated_power"] = rated_power
-            device["parameters"]["cutin_speed"] = cutin_speed
-            device["parameters"]["cutout_speed"] = cutout_speed
+            device["parameters"]["Pload1"] = Pload1
+            device["parameters"]["Cload1"] = Cload1
             break
     new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
     sql = f"UPDATE eeeic.home SET data = '{new_data}' WHERE id = '{f_id}';"
     response = DB.update(sql)
     return jsonify(response)
 
-def change_solar_param(f_id,d_id,rated_power,efficiency,open_voltage):
+def change_solar_param(f_id,d_id,Pload1,Cload1):
     sql = f"SELECT data FROM eeeic.home WHERE id = '{f_id}';"
     f_data = DB.query(sql)
     f_data = json.loads(f_data[0][0])
     for device in f_data["devices"]:
         if device["d_id"] == d_id:
-            device["parameters"]["rated_power"] = rated_power
-            device["parameters"]["efficiency"] = efficiency
-            device["parameters"]["open_voltage"] = open_voltage
+            device["parameters"]["Pload1"] = Pload1
+            device["parameters"]["Cload1"] = Cload1
             break
     new_data = json.dumps(f_data, indent=4, ensure_ascii=False)
     sql = f"UPDATE eeeic.home SET data = '{new_data}' WHERE id = '{f_id}';"

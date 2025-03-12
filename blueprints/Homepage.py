@@ -61,30 +61,27 @@ def add_device():
 def change_battery_param():
     f_id = request.args.get('f_id')
     d_id = request.args.get('d_id')
-    rated_voltage = request.args.get('rated_voltage')
-    capacity = request.args.get('capacity')
-    resistance = request.args.get('resistance')
-    response = Homepage.change_battery_param(f_id,d_id,rated_voltage,capacity,resistance)
+    Pload1 = request.args.get('Pload1')
+    Cload1 = request.args.get('Cload1')
+    response = Homepage.change_battery_param(f_id,d_id,Pload1,Cload1)
     return response
 
 @homepage.route('/changeWindParam', strict_slashes=False, methods=['GET', 'POST'])
 def change_wind_param():
     f_id = request.args.get('f_id')
     d_id = request.args.get('d_id')
-    rated_power = request.args.get('rated_power')
-    cutin_speed = request.args.get('cutin_speed')
-    cutout_speed = request.args.get('cutout_speed')
-    response = Homepage.change_wind_param(f_id, d_id, rated_power, cutin_speed, cutout_speed)
+    Pload1 = request.args.get('Pload1')
+    Cload1 = request.args.get('Cload1')
+    response = Homepage.change_wind_param(f_id, d_id, Pload1, Cload1)
     return response
 
 @homepage.route('/changeSolarParam', strict_slashes=False, methods=['GET', 'POST'])
 def change_solar_param():
     f_id = request.args.get('f_id')
     d_id = request.args.get('d_id')
-    peak_power = request.args.get('peak_power')
-    efficiency = request.args.get('efficiency')
-    open_voltage = request.args.get('open_voltage')
-    response = Homepage.change_solar_param(f_id, d_id, peak_power, efficiency, open_voltage)
+    Pload1 = request.args.get('Pload1')
+    Cload1 = request.args.get('Cload1')
+    response = Homepage.change_solar_param(f_id, d_id, Pload1, Cload1)
     return response
 
 @homepage.route('/changeGridParam', strict_slashes=False, methods=['GET', 'POST'])
